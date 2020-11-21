@@ -2,7 +2,9 @@ package com.shanjupay.merchant.controller;
 
 import com.shanjupay.merchant.api.MerchantService;
 import com.shanjupay.merchant.api.dto.MerchantDTO;
+import com.shanjupay.merchant.convert.MerchantConvert;
 import com.shanjupay.merchant.service.SmsService;
+import com.shanjupay.merchant.vo.MerchantRegisterVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -36,13 +38,38 @@ public class MerchantController {
     }
 
     @ApiOperation("获取手机验证码")
-    @ApiImplicitParam(name = "phone",value = "手机号",required = true,dataType = "String",paramType = "query")
+    @ApiImplicitParam(name = "phone", value = "手机号", required = true, dataType = "String", paramType = "query")
     @GetMapping(value = "/sms")
-    public String getSMSCode(@RequestParam("phone") String phone){
-        log.info("向手机号:{}发送验证码",phone);
+    public String getSMSCode(@RequestParam("phone") String phone) {
+        log.info("向手机号:{}发送验证码", phone);
         String s = smsService.sendMsg(phone);
         return s;
     }
+
+    @ApiOperation("商户注册")
+    @ApiImplicitParam(name = "merchantRegisterVO", value = "注册信息", required = true, dataType = "MerchantRegisterVO", paramType = "body")
+    @PostMapping(value = "/merchants/register")
+    public MerchantRegisterVO merchantRegister(@RequestBody MerchantRegisterVO merchantRegisterVO) {
+/*        // 校验验证码
+        String verifiyCode = merchantRegisterVO.getVerifiyCode();
+        String verifiykey = merchantRegisterVO.getVerifiykey();
+        smsService.checkVerifiyCode(verifiykey, verifiyCode);
+        // 调用dubbo服务接口
+        MerchantDTO merchantDTO = new MerchantDTO();
+        merchantDTO.setMobile(merchantRegisterVO.getMobile());
+        merchantDTO.setUsername(merchantRegisterVO.getUsername());
+        // 向dto写入商户注册的信息
+        merchantService.createMerchant(merchantDTO);*/
+        // 校验验证码
+        String verifiyCode = merchantRegisterVO.getVerifiyCode();
+        String verifiykey = merchantRegisterVO.getVerifiykey();
+        smsService.checkVerifiyCode(verifiykey, verifiyCode);
+        // 调用dubbo服务接口
+        MerchantDTO merchantDTO = MerchantConvert.INSTANCE.vo2DTO(merchantRegisterVO);
+        merchantService.createMerchant(merchantDTO);
+        return merchantRegisterVO;
+    }
+
     @ApiOperation("测试")
     @GetMapping(path = "/hello")
     public String hello() {

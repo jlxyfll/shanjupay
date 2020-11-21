@@ -2,6 +2,7 @@ package com.shanjupay.merchant.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.shanjupay.merchant.service.SmsService;
+import com.shanjupay.merchant.vo.MerchantRegisterVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,4 +67,30 @@ public class SmsServiceImpl implements SmsService {
         System.out.println(key);
         return key;
     }
+
+    @Override
+    public void checkVerifiyCode(String verifiyKey, String verifiyCode) {
+        // 校验验证码地址
+        String url = smsUrl + "/verify?name=sms&verificationCode=" + verifiyCode + "&verificationKey=" + verifiyKey;
+        log.info("调用短信微服务校验验证码：url:{}", url);
+        Map responseMap = null;
+        try {
+            // 校验验证码
+            ResponseEntity<Map> exchange = restTemplate.exchange(url, HttpMethod.POST, HttpEntity.EMPTY, Map.class);
+            log.info("调用短信微服务校验验证码: 返回值:{}", JSON.toJSONString(exchange));
+            // 获取响应 HttpEntity.EMPTY 无请求头与请求体
+            responseMap = exchange.getBody();
+        } catch (RestClientException e) {
+            e.printStackTrace();
+            throw new RuntimeException("发校验验证码出错");
+        }
+
+        // 取出body中的result数据
+        if (responseMap == null || responseMap.get("result") == null || !(Boolean) responseMap.get("result")) {
+            throw new RuntimeException("校验验证码出错");
+        }
+
+    }
+
+
 }
