@@ -3,11 +3,15 @@ package com.shanjupay.merchant.controller;
 import com.shanjupay.common.domain.BusinessException;
 import com.shanjupay.common.domain.CommonErrorCode;
 import com.shanjupay.common.util.PhoneUtil;
+import com.shanjupay.merchant.api.ApplyMerchantService;
+import com.shanjupay.merchant.convert.MerchantDetailConvert;
 import com.shanjupay.merchant.service.FileService;
 import com.shanjupay.merchant.api.MerchantService;
 import com.shanjupay.merchant.api.dto.MerchantDTO;
 import com.shanjupay.merchant.convert.MerchantConvert;
 import com.shanjupay.merchant.service.SmsService;
+import com.shanjupay.merchant.util.SecurityUtil;
+import com.shanjupay.merchant.vo.MerchantDetailVO;
 import com.shanjupay.merchant.vo.MerchantRegisterVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -36,6 +40,9 @@ import java.util.UUID;
 public class MerchantController {
     @Reference
     private MerchantService merchantService;
+
+    @Reference
+    private ApplyMerchantService applyMerchantService;
 
     @Autowired
     private FileService fileService;
@@ -130,6 +137,18 @@ public class MerchantController {
 
         String fileUrl = fileService.upload(file.getBytes(), fileName);
         return fileUrl;
+    }
+
+    @ApiOperation("商户资质申请")
+    @ApiImplicitParam(name = "merchantDetailVO", value = "商户认证资料", required = true, dataType = "MerchantDetailVO", paramType = "body")
+    @PostMapping(value = "/my/merchants/save")
+    public void saveMerchant(@RequestBody MerchantDetailVO merchantDetailVO) {
+        // 解析token得到商户id
+        Long merchantId = SecurityUtil.getMerchantId();
+        MerchantDTO merchantDTO = MerchantDetailConvert.INSTANCE.vo2DTO(merchantDetailVO);
+        // 资质申请
+
+        applyMerchantService.applyMerchant(merchantId, merchantDTO);
     }
 
 
