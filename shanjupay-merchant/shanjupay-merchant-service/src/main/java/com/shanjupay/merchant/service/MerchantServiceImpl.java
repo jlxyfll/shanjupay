@@ -1,10 +1,15 @@
 package com.shanjupay.merchant.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.shanjupay.common.domain.BusinessException;
+import com.shanjupay.common.domain.CommonErrorCode;
+import com.shanjupay.common.util.PhoneUtil;
 import com.shanjupay.merchant.api.MerchantService;
 import com.shanjupay.merchant.api.dto.MerchantDTO;
 import com.shanjupay.merchant.convert.MerchantConvert;
 import com.shanjupay.merchant.entity.Merchant;
 import com.shanjupay.merchant.mapper.MerchantMapper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -42,7 +47,35 @@ public class MerchantServiceImpl implements MerchantService {
      * @return
      */
     @Override
-    public MerchantDTO createMerchant(MerchantDTO merchantDTO) {
+    public MerchantDTO createMerchant(MerchantDTO merchantDTO) throws BusinessException {
+        // 1.校验
+        if (merchantDTO == null) {
+            // 传入对象为空
+            throw new BusinessException(CommonErrorCode.E_100108);
+        }
+        // 2.校验手机号
+        if (StringUtils.isBlank(merchantDTO.getMobile())) {
+            // 手机号为空
+            throw new BusinessException(CommonErrorCode.E_100112);
+        }
+        // 3.校验手机号合法性
+        if (!PhoneUtil.isMatches(merchantDTO.getMobile())) {
+            // 手机号不合法
+            throw new BusinessException(CommonErrorCode.E_100109);
+        }
+        // 4.联系人非空校验
+        if (StringUtils.isBlank(merchantDTO.getUsername())) {
+            // 联系人为空
+            throw new BusinessException(CommonErrorCode.E_100110);
+        }
+        // 5.校验手机号唯一性
+        LambdaQueryWrapper<Merchant> lambdaQueryWrapper = new LambdaQueryWrapper<Merchant>().eq(Merchant::getMobile, merchantDTO.getMobile());
+        Integer count = merchantMapper.selectCount(lambdaQueryWrapper);
+        if (count > 0) {
+            // 手机号已存在
+            throw new BusinessException(CommonErrorCode.E_100113);
+        }
+
         /*Merchant merchant = new Merchant();
         // 获取注册时的手机号
         String merchantDTOMobile = merchantDTO.getMobile();

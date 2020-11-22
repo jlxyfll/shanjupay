@@ -1,6 +1,8 @@
 package com.shanjupay.merchant.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.shanjupay.common.domain.BusinessException;
+import com.shanjupay.common.domain.CommonErrorCode;
 import com.shanjupay.merchant.service.SmsService;
 import com.shanjupay.merchant.vo.MerchantRegisterVO;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +71,7 @@ public class SmsServiceImpl implements SmsService {
     }
 
     @Override
-    public void checkVerifiyCode(String verifiyKey, String verifiyCode) {
+    public void checkVerifiyCode(String verifiyKey, String verifiyCode) throws BusinessException {
         // 校验验证码地址
         String url = smsUrl + "/verify?name=sms&verificationCode=" + verifiyCode + "&verificationKey=" + verifiyKey;
         log.info("调用短信微服务校验验证码：url:{}", url);
@@ -82,12 +84,14 @@ public class SmsServiceImpl implements SmsService {
             responseMap = exchange.getBody();
         } catch (RestClientException e) {
             e.printStackTrace();
-            throw new RuntimeException("发校验验证码出错");
+            throw new BusinessException(CommonErrorCode.E_100102);
+//            throw new RuntimeException("发校验验证码出错");
         }
 
         // 取出body中的result数据
         if (responseMap == null || responseMap.get("result") == null || !(Boolean) responseMap.get("result")) {
-            throw new RuntimeException("校验验证码出错");
+            throw new BusinessException(CommonErrorCode.E_100102);
+//            throw new RuntimeException("校验验证码出错");
         }
 
     }

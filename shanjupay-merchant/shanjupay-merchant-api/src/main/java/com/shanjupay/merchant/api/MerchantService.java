@@ -1,5 +1,6 @@
 package com.shanjupay.merchant.api;
 
+import com.shanjupay.common.domain.BusinessException;
 import com.shanjupay.merchant.api.dto.MerchantDTO;
 
 /**
@@ -19,6 +20,6 @@ public interface MerchantService {
      * @param merchantDTO
      * @return
      */
-    MerchantDTO createMerchant(MerchantDTO merchantDTO);
+    MerchantDTO createMerchant(MerchantDTO merchantDTO) throws BusinessException;
 
 }
