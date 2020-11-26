@@ -2,7 +2,7 @@ package com.shanjupay.merchant.controller;
 
 import com.shanjupay.common.domain.BusinessException;
 import com.shanjupay.common.domain.CommonErrorCode;
-import com.shanjupay.merchant.util.SecurityUtil;
+import com.shanjupay.merchant.common.util.SecurityUtil;
 import com.shanjupay.transaction.api.PayChannelService;
 import com.shanjupay.transaction.api.dto.PayChannelDTO;
 import com.shanjupay.transaction.api.dto.PayChannelParamDTO;
@@ -31,7 +31,7 @@ public class PlatformParamController {
     private PayChannelService payChannelService;
 
     @ApiOperation("获取平台服务类型")
-    @GetMapping(value = "/my/platform‐channels")
+    @GetMapping(value = "/my/platform-channels")
     public List<PlatformChannelDTO> queryPlatformChannel() {
         List<PlatformChannelDTO> platformChannelDTOList = payChannelService.queryPlatformChannel();
         return platformChannelDTOList;
@@ -40,7 +40,7 @@ public class PlatformParamController {
     @ApiOperation("根据平台服务类型获取支付渠道列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "platformChannelCode", value = "服务类型编码", required = true, dataType = "String", paramType = "path")})
-    @GetMapping(value = "/my/pay‐channels/platform‐channel/{platformChannel}")
+    @GetMapping(value = "/my/pay-channels/platform-channel/{platformChannel}")
     public List<PayChannelDTO> queryPayChannelByPlatformChannel(@PathVariable("platformChannel") String platformChannel) {
         List<PayChannelDTO> payChannelDTOList = payChannelService.queryPayChannelByPlatformChannel(platformChannel);
         return payChannelDTOList;
@@ -69,7 +69,7 @@ public class PlatformParamController {
                     "String", paramType = "path"),
             @ApiImplicitParam(name = "platformChannel", value = "服务类型", required = true,
                     dataType = "String", paramType = "path")})
-    @GetMapping(value = "/my/pay‐channel‐params/apps/{appId}/platformchannels/{platformChannel}")
+    @GetMapping(value = "/my/pay-channel-params/apps/{appId}/platform-channels/{platformChannel}")
     public List<PayChannelParamDTO> queryPayChannelParam(@PathVariable("appId") String appId, @PathVariable("platformChannel") String platformChannel) {
         List<PayChannelParamDTO> payChannelParamDTOList = payChannelService.queryPayChannelParamByAppAndPlatform(appId, platformChannel);
         return payChannelParamDTOList;
@@ -83,7 +83,7 @@ public class PlatformParamController {
                     dataType = "String", paramType = "path"),
             @ApiImplicitParam(name = "payChannel", value = "实际支付渠道编码", required = true,
                     dataType = "String", paramType = "path")})
-    @GetMapping(value = "/my/pay‐channel‐params/apps/{appId}/platformchannels/{platformChannel}/pay‐channels/{payChannel}")
+    @GetMapping(value = "/my/pay-channel-params/apps/{appId}/platform-channels/{platformChannel}/pay-channels/{payChannel}")
     public PayChannelParamDTO queryPayChannelParam(@PathVariable String appId, @PathVariable String platformChannel, @PathVariable String payChannel) {
         PayChannelParamDTO payChannelParamDTO = payChannelService.queryParamByAppPlatformAndPayChannel(appId, platformChannel, payChannel);
         return payChannelParamDTO;

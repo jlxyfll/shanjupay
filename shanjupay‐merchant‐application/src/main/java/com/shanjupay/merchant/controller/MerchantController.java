@@ -10,7 +10,7 @@ import com.shanjupay.merchant.api.MerchantService;
 import com.shanjupay.merchant.api.dto.MerchantDTO;
 import com.shanjupay.merchant.convert.MerchantConvert;
 import com.shanjupay.merchant.service.SmsService;
-import com.shanjupay.merchant.util.SecurityUtil;
+import com.shanjupay.merchant.common.util.SecurityUtil;
 import com.shanjupay.merchant.vo.MerchantDetailVO;
 import com.shanjupay.merchant.vo.MerchantRegisterVO;
 import io.swagger.annotations.Api;
@@ -24,8 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.sql.BatchUpdateException;
 import java.util.UUID;
 
 /**
@@ -54,6 +52,14 @@ public class MerchantController {
     @GetMapping(value = "/merchants/{id}")
     public MerchantDTO queryMerchantById(@PathVariable("id") Long id) {
         MerchantDTO merchantDTO = merchantService.queryMerchantById(id);
+        return merchantDTO;
+    }
+
+    @ApiOperation("获取登录用户的商户信息")
+    @GetMapping(value = "/my/merchants")
+    public MerchantDTO getMyMerchantInfo() {
+        Long merchantId = SecurityUtil.getMerchantId();
+        MerchantDTO merchantDTO = merchantService.queryMerchantById(merchantId);
         return merchantDTO;
     }
 
