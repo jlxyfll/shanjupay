@@ -1,5 +1,5 @@
 server:
-  port: 56050 #启动端口 命令行注入
+  port: 9010 #启动端口 命令行注入
 
 nacos:
   server:
@@ -37,6 +37,14 @@ spring:
           -
             refresh: true
             data-id: spring-boot-redis.yaml # redis配置
+            group: COMMON_GROUP # 通用配置组
+          -
+            refresh: true
+            data‐id: spring-boot-freemarker.yaml # spring boot freemarker配置
+            group: COMMON_GROUP # 通用配置组
+          -
+            refresh: true
+            data-id: spring-boot-starter-rocketmq.yaml # rocketmq配置
             group: COMMON_GROUP # 通用配置组
 
 dubbo:

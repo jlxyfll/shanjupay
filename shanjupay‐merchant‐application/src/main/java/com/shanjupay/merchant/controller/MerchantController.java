@@ -3,6 +3,7 @@ package com.shanjupay.merchant.controller;
 import com.shanjupay.common.domain.BusinessException;
 import com.shanjupay.common.domain.CommonErrorCode;
 import com.shanjupay.common.util.PhoneUtil;
+import com.shanjupay.common.util.QRCodeUtil;
 import com.shanjupay.merchant.api.ApplyMerchantService;
 import com.shanjupay.merchant.convert.MerchantDetailConvert;
 import com.shanjupay.merchant.service.FileService;
@@ -13,17 +14,18 @@ import com.shanjupay.merchant.service.SmsService;
 import com.shanjupay.merchant.common.util.SecurityUtil;
 import com.shanjupay.merchant.vo.MerchantDetailVO;
 import com.shanjupay.merchant.vo.MerchantRegisterVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import com.shanjupay.transaction.api.TransactionService;
+import com.shanjupay.transaction.api.dto.QrCodeDTO;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -36,6 +38,18 @@ import java.util.UUID;
 @Api(value = "商户平台-商户相关", tags = "商户平台-商户相关", description = "商户平台-商户相关")
 @Slf4j
 public class MerchantController {
+    /**
+     * 门店二维码订单标题
+     */
+    @Value("${shanjupay.c2b.subject}")
+    private String subject;
+
+    /**
+     * 门店二维码订单内容
+     */
+    @Value("${shanjupay.c2b.body}")
+    private String body;
+
     @Reference
     private MerchantService merchantService;
 
@@ -47,6 +61,9 @@ public class MerchantController {
 
     @Autowired
     private SmsService smsService;
+
+    @Reference
+    private TransactionService transactionService;
 
     @ApiOperation(value = "根据id查询商户")
     @GetMapping(value = "/merchants/{id}")
@@ -157,6 +174,36 @@ public class MerchantController {
         applyMerchantService.applyMerchant(merchantId, merchantDTO);
     }
 
+    @ApiOperation("生成商户应用门店二维码")
+    @ApiImplicitParams({@ApiImplicitParam(name = "appId", value = "商户应用id", required = true, dataType = "String", paramType = "path")
+            , @ApiImplicitParam(name = "storeId", value = "商户门店id", required = true, dataType = "String", paramType = "path")})
+    @GetMapping(value = "/my/apps/{appId}/stores/{storeId}/app-store-qrcode")
+    public String createCScanBStoreQRCode(@PathVariable String appId, @PathVariable Long storeId) throws BusinessException {
+        // 商户id
+        Long merchantId = SecurityUtil.getMerchantId();
+        // 生成二维码链接
+        QrCodeDTO qrCodeDTO = new QrCodeDTO();
+        qrCodeDTO.setMerchantId(merchantId);
+        qrCodeDTO.setAppId(appId);
+        qrCodeDTO.setStoreId(storeId);
+        // 标题
+        MerchantDTO merchantDTO = merchantService.queryMerchantById(merchantId);
+        // "%s 商品"
+        qrCodeDTO.setSubject(String.format(subject, merchantDTO.getMerchantName()));
+        // 内容，格式："向%s 付款"
+        qrCodeDTO.setBody(String.format(body, merchantDTO.getMerchantName()));
+
+        String storeQrCodeUrl = transactionService.createStoreQrCode(qrCodeDTO);
+        log.info("[merchantId:{},appId:{},storeId:{}]createCScanBStoreQRCode is:{}", merchantId, appId, storeId, storeQrCodeUrl);
+        try {
+            // 根据返回url，调用生成二维码工具类，生成二维码base64返回
+            QRCodeUtil qrCodeUtil = new QRCodeUtil();
+            return qrCodeUtil.createQRCode(storeQrCodeUrl, 200, 200);
+        } catch (IOException e) {
+            throw new BusinessException(CommonErrorCode.E_200007);
+        }
+
+    }
 
     @ApiOperation("测试")
     @GetMapping(path = "/hello")

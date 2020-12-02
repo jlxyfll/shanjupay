@@ -2,8 +2,11 @@ package com.shanjupay.merchant.service;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.shanjupay.common.domain.BusinessException;
 import com.shanjupay.common.domain.CommonErrorCode;
+import com.shanjupay.common.domain.PageVO;
 import com.shanjupay.common.util.PhoneUtil;
 import com.shanjupay.merchant.api.MerchantService;
 import com.shanjupay.merchant.api.dto.MerchantDTO;
@@ -28,6 +31,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.dubbo.config.annotation.Reference;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * @title: MerchantServiceImpl
@@ -281,5 +286,48 @@ public class MerchantServiceImpl implements MerchantService {
         Merchant merchant = merchantMapper.selectOne(new LambdaQueryWrapper<Merchant>().eq(Merchant::getTenantId, tenantId));
         MerchantDTO merchantDTO = MerchantConvert.INSTANCE.merchant2MerchantDTO(merchant);
         return merchantDTO;
+    }
+
+    /**
+     * 分页条件查询商户下门店
+     *
+     * @param storeDTO
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public PageVO<StoreDTO> queryStoreByPage(StoreDTO storeDTO, Integer pageNo, Integer pageSize) throws BusinessException {
+        // 创建页
+        Page<Store> page = new Page<>(pageNo, pageSize);
+        // 构造查询条件
+        if (storeDTO == null || storeDTO.getMerchantId() == null) {
+            throw new BusinessException(CommonErrorCode.E_300009);
+        }
+        LambdaQueryWrapper<Store> lambdaQueryWrapper = new LambdaQueryWrapper<Store>().eq(Store::getMerchantId, storeDTO.getMerchantId());
+        // 执行查询
+        IPage<Store> storeIPage = storeMapper.selectPage(page, lambdaQueryWrapper);
+        // entity转dto
+        List<StoreDTO> storeDTOList = StoreConvert.INSTANCE.storeList2DTO(storeIPage.getRecords());
+        // 封装结果集
+        PageVO<StoreDTO> pageVO = new PageVO<>(storeDTOList, storeIPage.getTotal(), pageNo, pageSize);
+        return pageVO;
+    }
+
+    /**
+     * 查询门店是否属于某商户
+     *
+     * @param storeId
+     * @param merchantId
+     * @return
+     * @throws BusinessException
+     */
+    @Override
+    public Boolean queryStoreInMerchant(Long storeId, Long merchantId) throws BusinessException {
+        if (storeId == null || merchantId == null) {
+            throw new BusinessException(CommonErrorCode.E_300009);
+        }
+        Integer count = storeMapper.selectCount(new LambdaQueryWrapper<Store>().eq(Store::getId, storeId).eq(Store::getMerchantId, merchantId));
+        return count > 0;
     }
 }

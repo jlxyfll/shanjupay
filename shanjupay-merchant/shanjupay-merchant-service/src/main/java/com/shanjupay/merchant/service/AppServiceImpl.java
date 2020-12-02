@@ -94,4 +94,21 @@ public class AppServiceImpl implements AppService {
         AppDTO appDTO = AppConvert.INSTANCE.app2AppDTO(app);
         return appDTO;
     }
+
+    /**
+     * 查询应用是否属于某个商户
+     *
+     * @param appId
+     * @param merchantId
+     * @return
+     * @throws BusinessException
+     */
+    @Override
+    public Boolean queryAppInMerchant(String appId, Long merchantId) throws BusinessException {
+        if (appId == null || merchantId == null) {
+            throw new BusinessException(CommonErrorCode.E_300009);
+        }
+        Integer count = appMapper.selectCount(new LambdaQueryWrapper<App>().eq(App::getAppId, appId).eq(App::getMerchantId, merchantId));
+        return count > 0;
+    }
 }

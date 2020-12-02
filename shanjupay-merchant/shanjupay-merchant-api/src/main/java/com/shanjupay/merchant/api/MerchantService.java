@@ -1,9 +1,11 @@
 package com.shanjupay.merchant.api;
 
 import com.shanjupay.common.domain.BusinessException;
+import com.shanjupay.common.domain.PageVO;
 import com.shanjupay.merchant.api.dto.MerchantDTO;
 import com.shanjupay.merchant.api.dto.StaffDTO;
 import com.shanjupay.merchant.api.dto.StoreDTO;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 /**
  * @title: MerchantService
@@ -65,6 +67,25 @@ public interface MerchantService {
      */
     MerchantDTO queryMerchantByTenantId(Long tenantId) throws BusinessException;
 
+    /**
+     * 分页条件查询商户下门店
+     *
+     * @param storeDTO
+     * @param pageNo
+     * @param pageSize
+     * @return
+     * @throws BusinessException
+     */
+    PageVO<StoreDTO> queryStoreByPage(StoreDTO storeDTO, Integer pageNo, Integer pageSize) throws BusinessException;
+
+    /**
+     * 查询门店是否属于某商户
+     * @param storeId
+     * @param merchantId
+     * @return
+     * @throws BusinessException
+     */
+    Boolean queryStoreInMerchant(Long storeId, Long merchantId) throws BusinessException;
 
 }
 

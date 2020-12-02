@@ -12,6 +12,10 @@
         <module>shanjupay-common</module>
         <module>shanjupay‐merchant‐application</module>
         <module>shanjupay-merchant</module>
+        <module>test-freemarker-new</module>
+        <module>test-freemarker</module>
+        <module>test-rocketmq</module>
+        <module>rocketmq-consumer</module>
     </modules>
 
     <parent>

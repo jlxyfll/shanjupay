@@ -76,7 +76,8 @@ public class QRCodeUtil {
 
 	public static void main(String[] args) throws IOException {
 		QRCodeUtil qrCodeUtil = new QRCodeUtil();
-		String qrCode = qrCodeUtil.createQRCode("http://192.168.50.212:56050/transaction/alipaytest", 200, 200);// "http://192.168.50.212:56050/transaction/alipaytest"
+		// String qrCode = qrCodeUtil.createQRCode("http://192.168.50.212:56050/transaction/alipaytest", 200, 200);// "http://192.168.50.212:56050/transaction/alipaytest"
+		String qrCode = qrCodeUtil.createQRCode("http://192.168.56.1:9010/transaction/getWXOAuth2Code", 200, 200);// "http://192.168.50.212:56050/transaction/alipaytest"
 		System.out.println(qrCode);
 	}
 }

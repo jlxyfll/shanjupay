@@ -24,6 +24,7 @@ public interface AppService {
 
     /**
      * 查询商户下的应用列表
+     *
      * @param merchantId
      * @return
      * @throws BusinessException
@@ -32,9 +33,20 @@ public interface AppService {
 
     /**
      * 根据业务id查询应用
+     *
      * @param appId
      * @return
      * @throws BusinessException
      */
     AppDTO getAppById(String appId) throws BusinessException;
+
+    /**
+     * 查询应用是否属于某个商户
+     * @param appId
+     * @param merchantId
+     * @return
+     * @throws BusinessException
+     */
+
+    Boolean queryAppInMerchant(String appId, Long merchantId) throws BusinessException;
 }
