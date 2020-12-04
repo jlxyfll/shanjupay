@@ -26,10 +26,10 @@ spring:
             refresh: true
             data-id: spring-boot-http.yaml # spring boot http配置
             group: COMMON_GROUP # 通用配置组
-          -
-            refresh: true
-            data-id: spring-boot-starter-druid.yaml # spring boot starter druid配置
-            group: COMMON_GROUP # 通用配置组
+#          -
+#            refresh: true
+#            data-id: spring-boot-starter-druid.yaml # spring boot starter druid配置
+#            group: COMMON_GROUP # 通用配置组
           -
             refresh: true
             data-id: spring-boot-mybatis-plus.yaml # spring boot mybatisplus配置
@@ -46,6 +46,10 @@ spring:
             refresh: true
             data-id: spring-boot-starter-rocketmq.yaml # rocketmq配置
             group: COMMON_GROUP # 通用配置组
+          -
+            refresh: true
+            data-id: sharding-jdbc.yaml # sharding-jdbc配置
+            group: SHANJUPAY_GROUP # 闪聚配置组
 
 dubbo:
   scan:

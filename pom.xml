@@ -16,6 +16,7 @@
         <module>test-freemarker</module>
         <module>test-rocketmq</module>
         <module>rocketmq-consumer</module>
+        <module>sharding-jdbc</module>
     </modules>
 
     <parent>
